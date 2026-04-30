@@ -8,8 +8,21 @@ function App() {
   const [isDark, setIsDark] = useState(false);
 
   const handleSetDarkMode = () => {
-    console.log(isDark)
     !isDark ? setIsDark(true) : setIsDark(false)
+  }
+
+  const [inputValue, setInputValue] = useState('');
+  const [userName, setUserName] = useState(() => {
+    return localStorage.getItem('userName') || '';
+  });
+
+  const handleGetUserName = (e : React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value)
+  }
+
+  const handleStart = () => {
+    localStorage.setItem('userName', inputValue);
+    setUserName(inputValue)
   }
 
   return (
@@ -17,9 +30,18 @@ function App() {
       <AppLayout
         onThemeToggle={handleSetDarkMode} 
         isDark={isDark}
+        userName={userName}
       >
-        {/* <Intro /> */}
-        <Home />
+        {userName ? 
+          <Home /> : 
+          <Intro
+            value={inputValue}
+            onChange={handleGetUserName}
+            onClick={handleStart}
+          />
+        }
+
+        
       </AppLayout>
     </div>
   )

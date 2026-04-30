@@ -1,7 +1,13 @@
 import dayjs from 'dayjs';
 
+type Props = {
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+}
 
-export default function Intro() {
+
+export default function Intro({ value, onChange, onClick } : Props) {
   const today = dayjs().format('YYYY.MM.DD');
 
   return (
@@ -18,6 +24,8 @@ export default function Intro() {
             type="text"
             className="w-full h-full border border-gray-500 rounded-sm pl-1 text-base"
             placeholder="ID를 입력해 주세요."
+            value={value}
+            onChange={onChange}
           />
         </div>
   
@@ -31,6 +39,7 @@ export default function Intro() {
           dark:hover:bg-white
           dark:hover:text-black
           transition-colors duration-200 ease-in-out cursor-pointer"
+          onClick={onClick}
         >
           시작하기
         </button>

@@ -5,9 +5,10 @@ type Props = {
   children: React.ReactNode;
   onThemeToggle: () => void;
   isDark: boolean;
+  userName: string;
 }
 
-export default function AppLayout({ children, onThemeToggle, isDark }: Props) {
+export default function AppLayout({ children, onThemeToggle, isDark, userName }: Props) {
   return (
     <div className="min-h-screen bg-neutral-100 dark:bg-neutral-950 flex justify-center dark:text-white">
       <div className="w-full max-w-107.5 h-dvh min-h-0 flex flex-col bg-white dark:bg-neutral-900 overflow-hidden">
@@ -15,6 +16,7 @@ export default function AppLayout({ children, onThemeToggle, isDark }: Props) {
           <Header 
             onThemeToggle={onThemeToggle}
             isDark={isDark}
+            userName={userName}
           />
         </div>
         <main className="flex flex-1 min-h-0 w-full flex-col overflow-hidden">

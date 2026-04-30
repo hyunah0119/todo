@@ -1,10 +1,23 @@
 import TodoListItems from "./TodoListItems"
 
-export default function TodoList() {
+type Todo = {
+  id: number;
+  text: string;
+  completed: boolean;
+}
+
+type Props = {
+  todos : Todo[];
+}
+
+export default function TodoList({ todos } : Props) {
   return (
-    <ul className="">
-      <TodoListItems />
-      <TodoListItems />
+    <ul>
+      {todos.map((item) => (
+        <TodoListItems key={item.id}>
+          {item.text}
+        </TodoListItems>
+      ))}
     </ul>
   )
 }

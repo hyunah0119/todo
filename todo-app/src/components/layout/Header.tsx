@@ -5,9 +5,10 @@ import { FaRegUser } from "react-icons/fa";
 type Props = {
   onThemeToggle : () => void;
   isDark : boolean;
+  userName: string;
 }
 
-export default function Header({ onThemeToggle, isDark } : Props) {
+export default function Header({ onThemeToggle, isDark, userName } : Props) {
   return (
     <div className="w-full h-12.5 border-b border-gray-300 flex justify-between items-center">
       <button
@@ -17,10 +18,14 @@ export default function Header({ onThemeToggle, isDark } : Props) {
         {!isDark ? <MdDarkMode /> : <MdLightMode />}
       </button>
 
-      <div className="px-4 text-sm font-medium flex items-center gap-x-1">
-        <FaRegUser />
-        <span>userName</span>
-      </div>
+      {
+        userName ? 
+        <div className="px-4 text-sm font-medium flex items-center gap-x-1">
+          <FaRegUser />
+          <span>{userName}</span>
+        </div> :
+        ''
+      }
     </div>
   )
 }
