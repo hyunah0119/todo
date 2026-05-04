@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import TodoHeader from "./TodoHeader"
 import TodoInput from "./TodoInput"
 import TodoProgressBar from "./TodoProgressBar"
@@ -6,6 +6,7 @@ import TodoFilter from "./TodoFilter"
 import TodoList from "./TodoList"
 
 import type { DropResult } from '@hello-pangea/dnd';
+import { supabase } from '../../lib/supabase';
 
 type Todo = {
   id: number;
@@ -16,34 +17,87 @@ type Todo = {
 export default function TodoContents() {
   const [todo, setTodo] = useState<Todo[]>([]);
   const [addTodo, setAddTodo] = useState('');
+  const userId = localStorage.getItem('userId');
+  // const API_URL = 'https://todo-phi-ruddy.vercel.app/todos';
 
+  // useEffect(() => {
+  //   fetch(`${API_URL}?userId=${userId}`)
+  //     .then((res) => res.json())
+  //     .then((data) => setTodo(data));
+  // }, []);
+
+  useEffect(() => {
+    const getTodos = async () => {
+      if (!userId) return;
+
+      const { data, error } = await supabase
+        .from('todos')
+        .select('*')
+        .eq('userId', userId);
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      setTodo(data || []);
+    };
+
+    getTodos();
+  }, [userId]);
+
+  {/* 저장 */}
   const handleAddTodoText = (e : React.ChangeEvent<HTMLInputElement>) => {
     setAddTodo(e.target.value)
   }
 
-  const handleAddTodoTextSave = () => {
-    setTodo([
-      ...todo, 
-      {
-        id: Date.now(),
+  // const handleAddTodoTextSave = async () => {
+  //   if (!addTodo.trim()) return;
+
+  //   const newTodo = {
+  //     userId,
+  //     text: addTodo,
+  //     completed: false
+  //   };
+
+  //   const res = await fetch(API_URL, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify(newTodo)
+  //   });
+
+  //   const data = await res.json();
+
+  //   setTodo([...todo, data]);
+  //   setAddTodo('');
+  // };
+
+  const handleAddTodoTextSave = async () => {
+    if (!addTodo.trim()) return;
+
+    const { data, error } = await supabase
+      .from('todos')
+      .insert({
+        userId,
         text: addTodo,
         completed: false
-      }
-    ]);
-    setAddTodo('')
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    setTodo([...todo, data]);
+    setAddTodo('');
   }
 
   const handleAddTodoTextEnter = (e : React.KeyboardEvent<HTMLInputElement>) => {
     if(e.key === 'Enter') {
-      setTodo([
-        ...todo, 
-        {
-          id: Date.now(),
-          text: addTodo,
-          completed: false
-        }
-      ]);
-      setAddTodo('')
+      e.preventDefault();
+      handleAddTodoTextSave();
     }
   }
 
@@ -63,29 +117,93 @@ export default function TodoContents() {
   }
 
   // 수정 완료 버튼
-  const handleEditTextBtn = () => {
+  // const handleEditTextBtn = async () => {
+  //   await fetch(`${API_URL}/${editingId}`, {
+  //     method: 'PATCH',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify({ text: editText })
+  //   });
+
+  //   setTodo(
+  //     todo.map(item =>
+  //       item.id === editingId
+  //         ? { ...item, text: editText }
+  //         : item
+  //     )
+  //   );
+
+  //   setEditingId(null);
+  //   setEditText('');
+  // };
+
+  const handleEditTextBtn = async () => {
+    if (!editingId) return;
+
+    const { error } = await supabase
+      .from('todos')
+      .update({ text: editText })
+      .eq('id', editingId);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
     setTodo(
-      todo.map((item) =>
-        item.id === editingId
-          ? { ...item, text: editText }
-          : item
+      todo.map(item =>
+        item.id === editingId ? { ...item, text: editText } : item
       )
     );
 
     setEditingId(null);
     setEditText('');
-  }
+  };
 
   {/* 완료 */}
-  const handleCompletedBtn = (id:number) => {
+  // const handleCompletedBtn = async (id: number) => {
+  //   const target = todo.find(item => item.id === id);
+
+  //   if (!target) return;
+
+  //   await fetch(`${API_URL}/${id}`, {
+  //     method: 'PATCH',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify({ completed: !target.completed })
+  //   });
+
+  //   setTodo(
+  //     todo.map(item =>
+  //       item.id === id
+  //         ? { ...item, completed: !item.completed }
+  //         : item
+  //     )
+  //   );
+  // };
+
+  const handleCompletedBtn = async (id: number) => {
+    const target = todo.find(item => item.id === id);
+    if (!target) return;
+
+    const { error } = await supabase
+      .from('todos')
+      .update({ completed: !target.completed })
+      .eq('id', id);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
     setTodo(
-      todo.map((item) => 
-        item.id === id
-          ? {...item, completed: !item.completed}
-          : item
+      todo.map(item =>
+        item.id === id ? { ...item, completed: !item.completed } : item
       )
-    )
-  }
+    );
+  };
 
   {/* 필터 */}
   const [selectRadioType, setSelectRadioType] = useState<string>('all');
@@ -112,8 +230,32 @@ export default function TodoContents() {
     );
   };
 
-  const handleDeleteList = () => {
-    setTodo(todo.filter((item) => !selectedIds.includes(item.id)));
+  // const handleDeleteList = async () => {
+  //   await Promise.all(
+  //     selectedIds.map(id =>
+  //       fetch(`${API_URL}/${id}`, {
+  //         method: 'DELETE'
+  //       })
+  //     )
+  //   );
+
+  //   setTodo(todo.filter(item => !selectedIds.includes(item.id)));
+  //   setSelectedIds([]);
+  //   setIsDelete(false);
+  // };
+
+  const handleDeleteList = async () => {
+    const { error } = await supabase
+      .from('todos')
+      .delete()
+      .in('id', selectedIds);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    setTodo(todo.filter(item => !selectedIds.includes(item.id)));
     setSelectedIds([]);
     setIsDelete(false);
   };

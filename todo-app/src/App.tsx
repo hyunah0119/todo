@@ -15,6 +15,7 @@ function App() {
   const [userName, setUserName] = useState(() => {
     return localStorage.getItem('userName') || '';
   });
+  const userId = crypto.randomUUID();
 
   const handleGetUserName = (e : React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
@@ -22,6 +23,7 @@ function App() {
 
   const handleStart = () => {
     localStorage.setItem('userName', inputValue);
+    localStorage.setItem('userId', userId);
     setUserName(inputValue)
   }
 
