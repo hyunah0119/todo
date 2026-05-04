@@ -1,73 +1,48 @@
-# React + TypeScript + Vite
+## 투두리스트
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript 기반으로 제작한 SPA 형태의 Todo 관리 애플리케이션입니다.  
+컴포넌트 단위 설계와 상태 관리 흐름을 중심으로 구현했으며, CRUD 기능과 사용자 경험 개선에 초점을 맞췄습니다.
 
-Currently, two official plugins are available:
+초기에는 json-server를 활용한 mock API로 기능을 구현했으나,  
+배포 환경에서 데이터 저장이 유지되지 않는 문제를 경험했습니다.  
+이를 해결하기 위해 Supabase로 전환하여 실제 DB 기반으로 개선했습니다.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 주요 기능
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- 오늘 날짜 표시
+- 할 일 추가 / 수정 / 삭제 (CRUD)
+- 완료 / 미완료 상태 토글
+- 전체 / 완료 / 미완료 필터링
+- 다중 선택 후 일괄 삭제
+- 드래그 앤 드롭으로 순서 변경  
+  → `@hello-pangea/dnd`
+- 라이트 / 다크 모드 지원
+- 사용자별 데이터 분리 (localStorage + Supabase)
+- Supabase 연동으로 데이터 영속성 유지
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 기술 스택
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- React
+- TypeScript
+- Tailwind CSS
+- Supabase
+- @hello-pangea/dnd
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 주요 구현 포인트
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- 상태 관리: `useState`, `useEffect` 기반으로 CRUD 흐름 설계
+- 컴포넌트 분리: TodoList / Item / Filter / Input 구조화
+- 사용자 식별: localStorage 기반 userId 생성 및 데이터 분리
+- 서버 전환 경험:
+  - json-server → Supabase 마이그레이션
+  - fetch → supabase client 방식으로 변경
+- UI/UX 개선:
+  - 다크모드 대응
+  - 드래그 앤 드롭 인터랙션
+  - 다중 선택 삭제 기능
