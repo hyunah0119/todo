@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import dayjs from "dayjs"
 import TodoHeader from "./TodoHeader"
 import TodoInput from "./TodoInput"
 import TodoProgressBar from "./TodoProgressBar"
@@ -10,13 +11,17 @@ import { supabase } from '../../lib/supabase';
 
 type Todo = {
   id: number;
+  userId: string;
   text: string;
   completed: boolean;
+  date: string;
 }
 
 export default function TodoContents() {
   const [todo, setTodo] = useState<Todo[]>([]);
   const [addTodo, setAddTodo] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isOpen, setIsOpen] = useState(false);
   const userId = localStorage.getItem('userId');
   // const API_URL = 'https://todo-phi-ruddy.vercel.app/todos';
 
@@ -33,7 +38,8 @@ export default function TodoContents() {
       const { data, error } = await supabase
         .from('todos')
         .select('*')
-        .eq('userId', userId);
+        .eq('userId', userId)
+        .eq('date', dayjs(selectedDate).format('YYYY-MM-DD'));
 
       if (error) {
         console.error(error);
@@ -44,7 +50,7 @@ export default function TodoContents() {
     };
 
     getTodos();
-  }, [userId]);
+  }, [userId, selectedDate]);
 
   {/* 저장 */}
   const handleAddTodoText = (e : React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +86,8 @@ export default function TodoContents() {
       .insert({
         userId,
         text: addTodo,
-        completed: false
+        completed: false,
+        date: dayjs(selectedDate).format('YYYY-MM-DD'),
       })
       .select()
       .single();
@@ -292,7 +299,12 @@ export default function TodoContents() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0">
-        <TodoHeader />
+        <TodoHeader
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+        />
         <TodoInput 
           value={addTodo}
           onChange={handleAddTodoText}

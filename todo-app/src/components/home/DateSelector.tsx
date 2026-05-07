@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { MdArrowBackIosNew } from "react-icons/md";
 import { MdArrowForwardIos } from "react-icons/md";
@@ -10,9 +9,19 @@ import "react-day-picker/style.css";
 
 dayjs.locale('ko')
 
-export default function DateSelector() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isOpen, setIsOpen] = useState(false);
+type DateSelectorProps = {
+  selectedDate: Date;
+  setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export default function DateSelector({
+  selectedDate,
+  setSelectedDate,
+  isOpen,
+  setIsOpen,
+}: DateSelectorProps) {
 
   const formattedDate = dayjs(selectedDate).format('MM월 DD일 (dd)');
 
